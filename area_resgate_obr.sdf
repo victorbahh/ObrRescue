@@ -1,0 +1,450 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+  <!-- Arquivo SDF para a Sala de Resgate OBR 2026 (Nível 2) - Gazebo Sim -->
+  <world name="sala_resgate_obr_nivel2">
+    
+    <!-- Configurações de Física -->
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+    
+    <!-- Gravidade -->
+    <gravity>0 0 -9.81</gravity>
+
+    <!-- Plugins Necessários do Gazebo Sim (Ignition) -->
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <!-- Iluminação Direcional (Sol) -->
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.9 0.9 0.9 1</diffuse>
+      <specular>0.5 0.5 0.5 1</specular>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <!-- Iluminação Pontual Central para remover sombras escuras -->
+    <light type="point" name="center_light">
+      <cast_shadows>false</cast_shadows>
+      <pose>0 0 1.5 0 0 0</pose>
+      <diffuse>0.5 0.5 0.5 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>4</range>
+        <constant>0.2</constant>
+        <linear>0.1</linear>
+        <quadratic>0.02</quadratic>
+      </attenuation>
+    </light>
+
+    <!-- ESTRUTURA DA SALA (Estática) -->
+    <model name="rescue_room">
+      <static>true</static>
+      
+      <!-- PISO -->
+      <link name="floor">
+        <pose>0 0 -0.005 0 0 0</pose>
+        <visual name="floor_vis">
+          <geometry>
+            <box><size>0.94 0.94 0.01</size></box>
+          </geometry>
+          <material>
+            <ambient>0.95 0.95 0.95 1</ambient>
+            <diffuse>0.95 0.95 0.95 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+          </material>
+        </visual>
+        <collision name="floor_col">
+          <geometry>
+            <box><size>0.94 0.94 0.01</size></box>
+          </geometry>
+        </collision>
+      </link>
+
+      <!-- PAREDE NORTE (Completa) -->
+      <link name="wall_north">
+        <pose>0 0.46 0.05 0 0 0</pose>
+        <visual name="wall_north_vis">
+          <geometry>
+            <box><size>0.94 0.02 0.10</size></box>
+          </geometry>
+          <material>
+            <ambient>0.9 0.9 0.9 1</ambient>
+            <diffuse>0.9 0.9 0.9 1</diffuse>
+          </material>
+        </visual>
+        <collision name="wall_north_col">
+          <geometry>
+            <box><size>0.94 0.02 0.10</size></box>
+          </geometry>
+        </collision>
+      </link>
+
+      <!-- PAREDE SUL (Completa) -->
+      <link name="wall_south">
+        <pose>0 -0.46 0.05 0 0 0</pose>
+        <visual name="wall_south_vis">
+          <geometry>
+            <box><size>0.94 0.02 0.10</size></box>
+          </geometry>
+          <material>
+            <ambient>0.9 0.9 0.9 1</ambient>
+            <diffuse>0.9 0.9 0.9 1</diffuse>
+          </material>
+        </visual>
+        <collision name="wall_south_col">
+          <geometry>
+            <box><size>0.94 0.02 0.10</size></box>
+          </geometry>
+        </collision>
+      </link>
+
+      <!-- PAREDE OESTE (Segmento com Entrada inferior) -->
+      <link name="wall_west_top_segment">
+        <pose>-0.46 0.125 0.05 0 0 0</pose>
+        <visual name="wall_west_vis">
+          <geometry>
+            <box><size>0.02 0.65 0.10</size></box>
+          </geometry>
+          <material>
+            <ambient>0.9 0.9 0.9 1</ambient>
+            <diffuse>0.9 0.9 0.9 1</diffuse>
+          </material>
+        </visual>
+        <collision name="wall_west_col">
+          <geometry>
+            <box><size>0.02 0.65 0.10</size></box>
+          </geometry>
+        </collision>
+      </link>
+
+      <!-- PAREDE LESTE (Segmento com Saída superior) -->
+      <link name="wall_east_bottom_segment">
+        <pose>0.46 -0.125 0.05 0 0 0</pose>
+        <visual name="wall_east_vis">
+          <geometry>
+            <box><size>0.02 0.65 0.10</size></box>
+          </geometry>
+          <material>
+            <ambient>0.9 0.9 0.9 1</ambient>
+            <diffuse>0.9 0.9 0.9 1</diffuse>
+          </material>
+        </visual>
+        <collision name="wall_east_col">
+          <geometry>
+            <box><size>0.02 0.65 0.10</size></box>
+          </geometry>
+        </collision>
+      </link>
+
+      <!-- FITA DE ENTRADA (Prata Oficial OBR com brilho metálico para contraste) -->
+      <link name="tape_entrance">
+        <pose>-0.45 -0.325 0.001 0 0 0</pose>
+        <visual name="tape_entrance_vis">
+          <geometry>
+            <box><size>0.025 0.25 0.001</size></box>
+          </geometry>
+          <material>
+            <ambient>0.65 0.65 0.70 1</ambient>
+            <diffuse>0.75 0.75 0.80 1</diffuse>
+            <specular>0.9 0.9 0.95 1</specular>
+          </material>
+        </visual>
+      </link>
+
+      <!-- FITA DE SAÍDA (Preta) -->
+      <link name="tape_exit">
+        <pose>0.45 0.325 0.001 0 0 0</pose>
+        <visual name="tape_exit_vis">
+          <geometry>
+            <box><size>0.025 0.25 0.001</size></box>
+          </geometry>
+          <material>
+            <ambient>0.05 0.05 0.05 1</ambient>
+            <diffuse>0.05 0.05 0.05 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ================= LADRILHO DE LINHA NA ENTRADA ================= -->
+    <model name="tile_entrance">
+      <static>true</static>
+      <pose>-0.60 -0.325 0 0 0 0</pose>
+      <link name="link">
+        <!-- Base do ladrilho (fundo claro alinhado com o piso) -->
+        <visual name="tile_base_vis">
+          <pose>0 0 -0.005 0 0 0</pose>
+          <geometry>
+            <box><size>0.30 0.30 0.01</size></box>
+          </geometry>
+          <material>
+            <ambient>0.95 0.95 0.95 1</ambient>
+            <diffuse>0.95 0.95 0.95 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+          </material>
+        </visual>
+        <collision name="tile_base_col">
+          <pose>0 0 -0.005 0 0 0</pose>
+          <geometry>
+            <box><size>0.30 0.30 0.01</size></box>
+          </geometry>
+        </collision>
+        
+        <!-- Linha preta (1.5cm de largura, centralizada no ladrilho) -->
+        <visual name="line_vis">
+          <pose>0 0 0.0005 0 0 0</pose>
+          <geometry>
+            <box><size>0.30 0.015 0.001</size></box>
+          </geometry>
+          <material>
+            <ambient>0.05 0.05 0.05 1</ambient>
+            <diffuse>0.05 0.05 0.05 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ================= LADRILHO DE LINHA NA SAÍDA ================= -->
+    <model name="tile_exit">
+      <static>true</static>
+      <pose>0.60 0.325 0 0 0 0</pose>
+      <link name="link">
+        <!-- Base do ladrilho (fundo claro alinhado com o piso) -->
+        <visual name="tile_base_vis">
+          <pose>0 0 -0.005 0 0 0</pose>
+          <geometry>
+            <box><size>0.30 0.30 0.01</size></box>
+          </geometry>
+          <material>
+            <ambient>0.95 0.95 0.95 1</ambient>
+            <diffuse>0.95 0.95 0.95 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+          </material>
+        </visual>
+        <collision name="tile_base_col">
+          <pose>0 0 -0.005 0 0 0</pose>
+          <geometry>
+            <box><size>0.30 0.30 0.01</size></box>
+          </geometry>
+        </collision>
+        
+        <!-- Linha preta (1.5cm de largura, centralizada no ladrilho) -->
+        <visual name="line_vis">
+          <pose>0 0 0.0005 0 0 0</pose>
+          <geometry>
+            <box><size>0.30 0.015 0.001</size></box>
+          </geometry>
+          <material>
+            <ambient>0.05 0.05 0.05 1</ambient>
+            <diffuse>0.05 0.05 0.05 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ÁREA DE RESGATE VERDE (Nível 2) - Canto Noroeste -->
+    <model name="rescue_area_green">
+      <static>false</static>
+      <pose>0 0 0 0 0 0</pose>
+      <link name="frame_link">
+        <inertial>
+          <pose>-0.3 0.3 0.02 0 0 0</pose>
+          <mass>0.8</mass>
+          <inertia>
+            <ixx>0.005</ixx>
+            <iyy>0.005</iyy>
+            <izz>0.01</izz>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyz>0</iyz>
+          </inertia>
+        </inertial>
+
+        <!-- Aresta Hipotenusa (Barreira de 6cm de altura) -->
+        <visual name="hypotenuse_vis">
+          <pose>-0.30 0.30 0.03 0 0 0.785398</pose>
+          <geometry><box><size>0.4242 0.02 0.06</size></box></geometry>
+          <material>
+            <ambient>0.0 0.8 0.0 1</ambient>
+            <diffuse>0.0 0.8 0.0 1</diffuse>
+          </material>
+        </visual>
+        <collision name="hypotenuse_col">
+          <pose>-0.30 0.30 0.03 0 0 0.785398</pose>
+          <geometry><box><size>0.4242 0.02 0.06</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction>
+          </surface>
+        </collision>
+      </link>
+    </model>
+
+    <!-- ÁREA DE RESGATE VERMELHA (Nível 2) - Canto Sudeste -->
+    <model name="rescue_area_red">
+      <static>false</static>
+      <pose>0 0 0 0 0 0</pose>
+      <link name="frame_link">
+        <inertial>
+          <pose>0.3 -0.3 0.02 0 0 0</pose>
+          <mass>0.8</mass>
+          <inertia>
+            <ixx>0.005</ixx>
+            <iyy>0.005</iyy>
+            <izz>0.01</izz>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyz>0</iyz>
+          </inertia>
+        </inertial>
+
+        <!-- Aresta Hipotenusa (Barreira de 6cm de altura) -->
+        <visual name="hypotenuse_vis">
+          <pose>0.30 -0.30 0.03 0 0 0.785398</pose>
+          <geometry><box><size>0.4242 0.02 0.06</size></box></geometry>
+          <material>
+            <ambient>0.8 0.0 0.0 1</ambient>
+            <diffuse>0.8 0.0 0.0 1</diffuse>
+          </material>
+        </visual>
+        <collision name="hypotenuse_col">
+          <pose>0.30 -0.30 0.03 0 0 0.785398</pose>
+          <geometry><box><size>0.4242 0.02 0.06</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction>
+          </surface>
+        </collision>
+      </link>
+    </model>
+
+    <!-- VÍTIMAS (Física Ativa) -->
+    
+    <!-- Vítima Viva 1 (Prata) -->
+    <model name="victim_alive_1">
+      <pose>-0.10 0.10 0.0225 0 0 0</pose>
+      <link name="link">
+        <inertial>
+          <pose>0.005 0.005 -0.005 0 0 0</pose>
+          <mass>0.08</mass>
+          <inertia>
+            <ixx>1.62e-05</ixx>
+            <iyy>1.62e-05</iyy>
+            <izz>1.62e-05</izz>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyz>0</iyz>
+          </inertia>
+        </inertial>
+        <visual name="vis">
+          <geometry>
+            <sphere><radius>0.0225</radius></sphere>
+          </geometry>
+          <material>
+            <ambient>0.9 0.9 0.9 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+            <specular>1.0 1.0 1.0 1</specular>
+            <emissive>0.3 0.3 0.3 1</emissive>
+          </material>
+        </visual>
+        <collision name="col">
+          <geometry>
+            <sphere><radius>0.0225</radius></sphere>
+          </geometry>
+          <surface>
+            <friction>
+              <ode><mu>0.8</mu><mu2>0.8</mu2></ode>
+            </friction>
+          </surface>
+        </collision>
+      </link>
+    </model>
+
+    <!-- Vítima Viva 2 (Prata) -->
+    <model name="victim_alive_2">
+      <pose>0.05 -0.15 0.0225 0 0 0</pose>
+      <link name="link">
+        <inertial>
+          <pose>0.005 0.005 -0.005 0 0 0</pose>
+          <mass>0.08</mass>
+          <inertia>
+            <ixx>1.62e-05</ixx>
+            <iyy>1.62e-05</iyy>
+            <izz>1.62e-05</izz>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyz>0</iyz>
+          </inertia>
+        </inertial>
+        <visual name="vis">
+          <geometry>
+            <sphere><radius>0.0225</radius></sphere>
+          </geometry>
+          <material>
+            <ambient>0.9 0.9 0.9 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+            <specular>1.0 1.0 1.0 1</specular>
+            <emissive>0.3 0.3 0.3 1</emissive>
+          </material>
+        </visual>
+        <collision name="col">
+          <geometry>
+            <sphere><radius>0.0225</radius></sphere>
+          </geometry>
+          <surface>
+            <friction>
+              <ode><mu>0.8</mu><mu2>0.8</mu2></ode>
+            </friction>
+          </surface>
+        </collision>
+      </link>
+    </model>
+
+    <!-- Vítima Morta (Escura/Preto Fosco) -->
+    <model name="victim_dead">
+      <pose>0.15 0.20 0.0225 0 0 0</pose>
+      <link name="link">
+        <inertial>
+          <pose>0.005 0.005 -0.005 0 0 0</pose>
+          <mass>0.08</mass>
+          <inertia>
+            <ixx>1.62e-05</ixx>
+            <iyy>1.62e-05</iyy>
+            <izz>1.62e-05</izz>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyz>0</iyz>
+          </inertia>
+        </inertial>
+        <visual name="vis">
+          <geometry>
+            <sphere><radius>0.0225</radius></sphere>
+          </geometry>
+          <material>
+            <ambient>0.15 0.15 0.15 1</ambient>
+            <diffuse>0.1 0.1 0.1 1</diffuse>
+            <specular>0.0 0.0 0.0 1</specular>
+          </material>
+        </visual>
+        <collision name="col">
+          <geometry>
+            <sphere><radius>0.0225</radius></sphere>
+          </geometry>
+          <surface>
+            <friction>
+              <ode><mu>0.8</mu><mu2>0.8</mu2></ode>
+            </friction>
+          </surface>
+        </collision>
+      </link>
+    </model>
+
+  </world>
+</sdf>
