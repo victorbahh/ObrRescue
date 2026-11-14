@@ -1,0 +1,166 @@
+<?xml version="1.0"?>
+<!--
+  HeRo robot for Gazebo Harmonic.
+  Geometry/inertia/meshes from hero_jazzy (original HeRo dimensions);
+  sensors ported from hero_description/urdf/{laser,imu}.gazebo.xacro (ROS 1).
+-->
+<robot name="hero" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:property name="PI" value="3.14159265359"/>
+  <xacro:property name="meshes" value="file://$(find hero_jazzy)/meshes"/>
+
+  <!-- ===================== Links & joints ===================== -->
+  <link name="base_link">
+    <visual>
+      <origin rpy="0 0 ${PI/2}" xyz="0 0 0"/>
+      <geometry><mesh filename="${meshes}/base_link.obj"/></geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 ${PI/2}" xyz="0 0 0.0121"/>
+      <geometry><cylinder length="0.042" radius="0.037"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.090"/>
+      <origin rpy="${PI/2} 0 0" xyz="0 0.0002 0"/>
+      <inertia ixx="5.925e-05" ixy="0" ixz="0" iyy="5.925e-05" iyz="0" izz="5.5125e-05"/>
+    </inertial>
+  </link>
+
+  <joint name="hat_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.00245 -0.00216 0.06027"/>
+    <parent link="base_link"/>
+    <child link="hat_link"/>
+  </joint>
+  <link name="hat_link">
+    <visual>
+      <geometry><mesh filename="${meshes}/hat.obj"/></geometry>
+      <material name="hat_blue"><color rgba="0.1 0.3 0.9 1"/></material>
+    </visual>
+    <collision>
+      <geometry><cylinder radius="0.035" length="0.012"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.010"/>
+      <inertia ixx="3.39583333333e-06" ixy="0" ixz="0" iyy="3.39583333333e-06" iyz="0" izz="6.125e-06"/>
+    </inertial>
+  </link>
+
+  <xacro:macro name="wheel" params="side y vis_roll col_roll">
+    <joint name="${side}_wheel_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="${side}_wheel_link"/>
+      <origin rpy="0 0 0" xyz="0 ${y} 0.01548"/>
+      <axis xyz="0 1 0"/>
+      <limit effort="0.1" velocity="20.0"/>
+      <dynamics damping="0.0001" friction="0.0"/>
+    </joint>
+    <link name="${side}_wheel_link">
+      <visual>
+        <origin rpy="${vis_roll} 0 0" xyz="0 0 0"/>
+        <geometry><mesh filename="${meshes}/wheel.obj"/></geometry>
+      </visual>
+      <collision>
+        <origin rpy="${col_roll} 0 0" xyz="0 0 0"/>
+        <geometry><cylinder length="0.008" radius="0.025"/></geometry>
+      </collision>
+      <inertial>
+        <mass value="0.020"/>
+        <origin rpy="${col_roll} 0 0" xyz="0 0 0"/>
+        <inertia ixx="3.23166666666e-06" ixy="0" ixz="0" iyy="3.23166666666e-06" iyz="0" izz="6.25e-06"/>
+      </inertial>
+    </link>
+    <gazebo reference="${side}_wheel_link">
+      <mu1>1</mu1>
+      <mu2>1</mu2>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:wheel side="left"  y="0.0323"  vis_roll="0"      col_roll="${PI/2}"/>
+  <xacro:wheel side="right" y="-0.0323" vis_roll="${-PI}" col_roll="${-PI/2}"/>
+
+  <joint name="laser_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0.051"/>
+    <parent link="base_link"/>
+    <child link="laser_link"/>
+  </joint>
+  <link name="laser_link">
+    <inertial>
+      <mass value="1e-5"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+    </inertial>
+  </link>
+
+  <gazebo reference="base_link">
+    <mu1>0.01</mu1>
+    <mu2>0.01</mu2>
+  </gazebo>
+
+  <!-- ===================== Sensors ===================== -->
+  <!-- 16-ray 360 deg proximity "laser" (HeRo IR ring), 3.8-20 cm -->
+  <gazebo reference="laser_link">
+    <sensor name="hero_laser" type="gpu_lidar">
+      <topic>/laser</topic>
+      <gz_frame_id>laser_link</gz_frame_id>
+      <update_rate>20</update_rate>
+      <always_on>true</always_on>
+      <visualize>true</visualize>
+      <lidar>
+        <scan>
+          <horizontal>
+            <samples>16</samples>
+            <resolution>1</resolution>
+            <min_angle>${-PI}</min_angle>
+            <max_angle>${PI - 2*PI/16}</max_angle>
+          </horizontal>
+          <vertical>
+            <samples>1</samples>
+            <min_angle>0</min_angle>
+            <max_angle>0</max_angle>
+          </vertical>
+        </scan>
+        <range>
+          <min>0.038</min>
+          <max>0.20</max>
+          <resolution>0.001</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.001</stddev>
+        </noise>
+      </lidar>
+    </sensor>
+  </gazebo>
+
+  <gazebo reference="base_link">
+    <sensor name="hero_imu" type="imu">
+      <topic>/imu</topic>
+      <gz_frame_id>base_link</gz_frame_id>
+      <update_rate>20</update_rate>
+      <always_on>true</always_on>
+    </sensor>
+  </gazebo>
+
+  <!-- ===================== Drive & joint states ===================== -->
+  <gazebo>
+    <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+      <left_joint>left_wheel_joint</left_joint>
+      <right_joint>right_wheel_joint</right_joint>
+      <wheel_separation>0.0646</wheel_separation>
+      <wheel_radius>0.025</wheel_radius>
+      <topic>/cmd_vel</topic>
+      <odom_topic>/odom</odom_topic>
+      <tf_topic>/tf</tf_topic>
+      <frame_id>odom</frame_id>
+      <child_frame_id>base_link</child_frame_id>
+      <odom_publish_frequency>30</odom_publish_frequency>
+      <max_linear_velocity>0.2</max_linear_velocity>
+      <max_angular_velocity>3</max_angular_velocity>
+    </plugin>
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+      <topic>/joint_states</topic>
+    </plugin>
+    <!-- IMU system loaded with the robot so any world works (worlds must not load it too,
+         or /imu is published twice). Worlds still need gz-sim-sensors-system for the laser. -->
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
+  </gazebo>
+</robot>

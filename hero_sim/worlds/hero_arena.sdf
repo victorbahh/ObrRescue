@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<!-- HeRo arena: 1.5 m x 1.5 m walled square with a few obstacles (Gazebo Harmonic) -->
+<sdf version="1.9">
+  <world name="hero_arena">
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+    </physics>
+
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <scene>
+      <ambient>0.6 0.6 0.6 1</ambient>
+      <background>0.16 0.20 0.26 1</background>
+      <shadows>true</shadows>
+    </scene>
+
+    <light name="sun" type="directional">
+      <pose>0 0 5 0 0 0</pose>
+      <diffuse>0.9 0.9 0.9 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.4 0.2 -1</direction>
+      <cast_shadows>true</cast_shadows>
+    </light>
+
+    <model name="ground">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><plane><normal>0 0 1</normal><size>4 4</size></plane></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><plane><normal>0 0 1</normal><size>4 4</size></plane></geometry>
+          <material>
+            <ambient>0.70 0.72 0.75 1</ambient>
+            <diffuse>0.70 0.72 0.75 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Arena walls: inner area 1.5 m x 1.5 m, 2 cm thick, 8 cm high -->
+    <model name="arena_walls">
+      <static>true</static>
+      <link name="north">
+        <pose>0 0.76 0.04 0 0 0</pose>
+        <collision name="c"><geometry><box><size>1.54 0.02 0.08</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>1.54 0.02 0.08</size></box></geometry>
+          <material><ambient>0.9 0.9 0.9 1</ambient><diffuse>0.9 0.9 0.9 1</diffuse></material></visual>
+      </link>
+      <link name="south">
+        <pose>0 -0.76 0.04 0 0 0</pose>
+        <collision name="c"><geometry><box><size>1.54 0.02 0.08</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>1.54 0.02 0.08</size></box></geometry>
+          <material><ambient>0.9 0.9 0.9 1</ambient><diffuse>0.9 0.9 0.9 1</diffuse></material></visual>
+      </link>
+      <link name="east">
+        <pose>0.76 0 0.04 0 0 0</pose>
+        <collision name="c"><geometry><box><size>0.02 1.5 0.08</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.02 1.5 0.08</size></box></geometry>
+          <material><ambient>0.9 0.9 0.9 1</ambient><diffuse>0.9 0.9 0.9 1</diffuse></material></visual>
+      </link>
+      <link name="west">
+        <pose>-0.76 0 0.04 0 0 0</pose>
+        <collision name="c"><geometry><box><size>0.02 1.5 0.08</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.02 1.5 0.08</size></box></geometry>
+          <material><ambient>0.9 0.9 0.9 1</ambient><diffuse>0.9 0.9 0.9 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- Obstacles (static) -->
+    <model name="box_orange">
+      <static>true</static>
+      <pose>0.30 0.20 0.04 0 0 0.3</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.08 0.08 0.08</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.08 0.08 0.08</size></box></geometry>
+          <material><ambient>1 0.3 0.05 1</ambient><diffuse>1 0.3 0.05 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="box_green">
+      <static>true</static>
+      <pose>-0.35 -0.30 0.03 0 0 -0.5</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.12 0.06 0.06</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.12 0.06 0.06</size></box></geometry>
+          <material><ambient>0.2 0.7 0.3 1</ambient><diffuse>0.2 0.7 0.3 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="cylinder_red">
+      <static>true</static>
+      <pose>0.35 -0.35 0.04 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><cylinder><radius>0.04</radius><length>0.08</length></cylinder></geometry></collision>
+        <visual name="v"><geometry><cylinder><radius>0.04</radius><length>0.08</length></cylinder></geometry>
+          <material><ambient>0.85 0.15 0.15 1</ambient><diffuse>0.85 0.15 0.15 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="cylinder_purple">
+      <static>true</static>
+      <pose>-0.30 0.40 0.04 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><cylinder><radius>0.03</radius><length>0.08</length></cylinder></geometry></collision>
+        <visual name="v"><geometry><cylinder><radius>0.03</radius><length>0.08</length></cylinder></geometry>
+          <material><ambient>0.5 0.2 0.8 1</ambient><diffuse>0.5 0.2 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+  </world>
+</sdf>
