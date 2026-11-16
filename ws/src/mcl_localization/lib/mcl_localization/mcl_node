@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+import sys
+import os
+
+# Adiciona o diretório do pacote ao path para importar o módulo
+pkg_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# lib/mcl_localization -> share/mcl_localization para encontrar o pacote Python
+share_dir = os.path.join(os.path.dirname(pkg_dir), 'share', 'mcl_localization')
+sys.path.insert(0, share_dir)
+
+from mcl_localization.mcl_node import main
+main()

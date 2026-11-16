@@ -1,68 +1,103 @@
 # ObrRescue
 
-OBR rescue-room worlds for Gazebo Harmonic and a HeRo robot simulation (`hero_sim`), running
-in a ROS 2 Jazzy + Gazebo Harmonic Docker container with WSL2 GUI support.
+OBR rescue-room worlds for Gazebo Harmonic e simulação do robô HeRo (`hero_sim`), rodando
+localmente com ROS 2 Jazzy + Gazebo Harmonic (sem Docker).
 
-## Folder layout
+## Estrutura da workspace
 
-This repo lives in the `src/` folder of a colcon workspace, **next to the HeRo repo** (`hero_sim` uses
-`hero/hero_jazzy` for the robot meshes and Gazebo GUI config):
+Tudo fica dentro da pasta `ws/` deste repositório:
+
 ```
-<workspace>/src/
-  ObrRescue/                 this repo (docker-compose.yml, Dockerfile, worlds, hero_sim/)
-  hero/                      https://github.com/gmdeoliveira/hero, branch ros2-jazzy-migration
+obr_ros/                 este repositório
+  ws/
+    src/
+      area_resgate_obr.sdf   mundo da sala de resgate OBR
+      hero_sim/              pacote ROS 2 (este repositório)
+      hero/                  https://github.com/gmdeoliveira/hero, branch ros2-jazzy-migration
+    build/
+    install/
+    log/
 ```
-`docker-compose.yml` mounts the whole `src/` folder (the parent of this repo) as `~/ws/src` in the container.
 
-Fresh setup on a new machine:
+O `.gitignore` já ignora `build/`, `install/` e `log/` em qualquer nível.
+
+## Setup inicial
+
 ```bash
-mkdir -p ~/OBR/ws/src && cd ~/OBR/ws/src
-git clone https://github.com/victorbahh/ObrRescue.git
-git clone -b ros2-jazzy-migration https://github.com/gmdeoliveira/hero.git
-# The ROS 1 (catkin) packages in hero/ have to be skipped by colcon and rosdep:
+# Dentro deste repositório (/home/victor/obr_ros)
+cd /home/victor/obr_ros
+
+# Clonar o repositório HeRo dentro de ws/src/
+git clone -b ros2-jazzy-migration https://github.com/gmdeoliveira/hero.git ws/src/hero
+
+# Ignorar pacotes ROS 1 (catkin) do hero para o colcon e rosdep pular
 for p in hero_ar_tracker hero_bringup hero_common hero_description hero_examples \
-         hero_firmware hero_gazebo hero_genesis; do touch hero/$p/COLCON_IGNORE; done
+         hero_firmware hero_gazebo hero_genesis; do
+  touch ws/src/hero/$p/COLCON_IGNORE
+done
 ```
 
-## Docker usage
+## Build
 
-GUI apps (Gazebo, RViz2) display through WSLg. They are GPU-accelerated on the NVIDIA GPU through WSL's
-D3D12 driver (`/dev/dxg`), so no NVIDIA container toolkit is needed.
+O ROS 2 Jazzy já está no seu `.zshrc` (`source /opt/ros/jazzy/setup.zsh`).
 
-From this repo's root:
 ```bash
-docker compose up -d --build     # build + start (container: ros-jazzy)
-docker compose exec ros bash     # open a shell (repeat for more terminals)
-docker compose down              # stop
+cd /home/victor/obr_ros/ws
+rosdep install --from-paths src -iy
+colcon build --symlink-install
+source install/setup.zsh
 ```
 
-Inside the container:
+O `--symlink-install` faz com que edições em `ws/src/area_resgate_obr.sdf` e nos arquivos de
+`ws/src/hero_sim/` (launch, urdf, config, worlds) valham imediatamente na próxima execução,
+sem precisar rebuildar.
+
+## Rodar
+
 ```bash
-cd ~/ws && rosdep install --from-paths src -iy && colcon build --symlink-install
-source install/setup.bash
+cd /home/victor/obr_ros/ws
+source install/setup.zsh
+
+# Terminal 1 — simulação (Gazebo + RViz)
+ros2 launch hero_sim sim.launch.py
+
+# Terminal 2 — teleoperação
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 
-## HeRo simulation
+Argumentos úteis do launch:
+```
+ros2 launch hero_sim sim.launch.py world:=hero_arena      # arena de teste
+ros2 launch hero_sim sim.launch.py gui:=false             # headless (mantém RViz)
+ros2 launch hero_sim sim.launch.py rviz:=false            # só Gazebo
+ros2 launch hero_sim sim.launch.py x:=-0.65 y:=-0.325     # spawn na linha de entrada
+```
 
-The HeRo robot runs in the OBR rescue room (`world:=obr_rescue`, the default, from
-[area_resgate_obr.sdf](area_resgate_obr.sdf)) or in a test arena (`world:=hero_arena`). It has a proximity laser,
-an IMU and RViz. Details are in [hero_sim/README.md](hero_sim/README.md).
+## Verificações rápidas
+
 ```bash
-ros2 launch hero_sim sim.launch.py                       # after building as above
-ros2 run teleop_twist_keyboard teleop_twist_keyboard     # 2nd shell; press z to slow down
+source /opt/ros/jazzy/setup.zsh
+gz sim shapes.sdf                 # Gazebo GUI abre?
+rviz2                             # RViz abre?
+ros2 pkg prefix hero_sim          # pacote construído?
+ros2 pkg prefix hero_jazzy        # pacote hero_jazzy construído?
 ```
 
-## Quick checks
-```bash
-glxinfo -B | grep renderer            # expect: D3D12 (NVIDIA GeForce RTX ...)
-gz sim shapes.sdf                     # Gazebo GUI
-rviz2
-ros2 launch ros_gz_sim_demos diff_drive.launch.py
-```
+## Arquivos
+
+| Caminho | Propósito |
+|---|---|
+| `ws/src/area_resgate_obr.sdf` | Mundo da sala de resgate OBR (instalado como `worlds/obr_rescue.sdf`) |
+| `ws/src/hero_sim/launch/sim.launch.py` | Gazebo + spawn + robot_state_publisher + bridge + RViz |
+| `ws/src/hero_sim/urdf/hero_sim.urdf.xacro` | Robô, DiffDrive, JointStatePublisher, gpu_lidar, IMU |
+| `ws/src/hero_sim/worlds/hero_arena.sdf` | Arena de teste simples |
+| `ws/src/hero_sim/config/bridge.yaml` | Mapeamento de tópicos ROS ↔ Gazebo |
+| `ws/src/hero_sim/rviz/hero.rviz` | Layout do RViz (fixed frame `odom`) |
 
 ## Troubleshooting
-- Renderer shows `llvmpipe`: check that `GALLIUM_DRIVER=d3d12` is set and that `/dev/dxg` exists on the host.
-- Gazebo rendering glitches: try `gz sim --render-engine ogre shapes.sdf`,
-  or software rendering with `LIBGL_ALWAYS_SOFTWARE=1`.
-- `CMake Error: The source ... does not match the source ... used to generate cache` after moving
-  `hero_sim`: run `rm -rf ~/ws/build/hero_sim ~/ws/install/hero_sim` and build again.
+
+- **Janela do Gazebo preta ou com falhas**: verifique `glxinfo -B | grep renderer` (deve mostrar D3D12).
+  Fallback: `LIBGL_ALWAYS_SOFTWARE=1 ros2 launch hero_sim sim.launch.py`.
+- **`/laser` vazio**: use `--qos-reliability best_effort` no `ros2 topic echo`.
+- **Gazebo sobrando após Ctrl-C**: `pkill -9 -f "gz sim"`.
+- **Erro de cache do CMake após mover `hero_sim`**: rode `rm -rf ws/build/hero_sim ws/install/hero_sim` e build novamente.

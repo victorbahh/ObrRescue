@@ -253,7 +253,7 @@
 
     <!-- ÁREA DE RESGATE VERDE (Nível 2) - Canto Noroeste -->
     <model name="rescue_area_green">
-      <static>false</static>
+      <static>true</static>
       <pose>0 0 0 0 0 0</pose>
       <link name="frame_link">
         <inertial>
