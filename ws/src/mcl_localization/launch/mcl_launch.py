@@ -1,19 +1,20 @@
 import os
-from ament_index_python.packages import get_package_prefix
 
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch_ros.actions import Node
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 
 def generate_launch_description():
-    install_dir = get_package_prefix('mcl_localization')
-    executable = os.path.join(install_dir, 'bin', 'mcl_node')
+    slam_launch = os.path.join(
+        get_package_share_directory('slam_toolbox'), 'launch', 'online_async_launch.py')
+    params_file = os.path.join(
+        get_package_share_directory('mcl_localization'), 'config', 'slam.yaml')
 
     return LaunchDescription([
-        Node(
-            package='mcl_localization',
-            executable=executable,
-            name='mcl_node',
-            output='screen',
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(slam_launch),
+            launch_arguments={'use_sim_time': 'true', 'slam_params_file': params_file}.items(),
         ),
     ])

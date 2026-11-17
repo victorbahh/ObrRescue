@@ -1,0 +1,5 @@
+er_server-11] [INFO] [1794875986.903808982] [controller_server]: Passing new path to controller.
+[collision_monitor-13] [INFO] [1794875987.336159576] [collision_monitor]: Robot to continue normal operation
+[collision_monitor-13] [INFO] [1794875987.422963290] [collision_monitor]: Robot to stop due to StopZone polygon
+[controller_server-11] [INFO] [1794875987.437172566] [controller_server]: Passing new path to controller.
+[controller_server-11] [INFO] [1794875987.970502766] [controller_server]: Passing new path to controller.

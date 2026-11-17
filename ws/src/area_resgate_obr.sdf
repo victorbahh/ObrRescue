@@ -290,7 +290,7 @@
 
     <!-- ÁREA DE RESGATE VERMELHA (Nível 2) - Canto Sudeste -->
     <model name="rescue_area_red">
-      <static>false</static>
+      <static>true</static>
       <pose>0 0 0 0 0 0</pose>
       <link name="frame_link">
         <inertial>

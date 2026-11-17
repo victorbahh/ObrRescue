@@ -1,7 +1,7 @@
 """HeRo in a Gazebo Harmonic world.
 
 ros2 launch hero_sim sim.launch.py [world:=obr_rescue|hero_arena|/path/to.sdf]
-    [gui:=true] [rviz:=true] [x:=0.0] [y:=0.0] [yaw:=0.0]
+    [gui:=true] [rviz:=true] [x:=0.0] [y:=0.0] [yaw:=0.0] [mapping_lidar:=false]
 """
 import os
 
@@ -49,7 +49,10 @@ def generate_launch_description():
 
     rviz = LaunchConfiguration('rviz')
 
-    robot_description = ParameterValue(Command(['xacro ', xacro_file]), value_type=str)
+    robot_description = ParameterValue(
+        Command(['xacro ', xacro_file, ' mapping_lidar:=', LaunchConfiguration('mapping_lidar')]),
+        value_type=str,
+    )
 
     return LaunchDescription([
         DeclareLaunchArgument('world', default_value='obr_rescue',
@@ -59,6 +62,8 @@ def generate_launch_description():
         DeclareLaunchArgument('x', default_value='0.0', description='Spawn x [m]'),
         DeclareLaunchArgument('y', default_value='0.0', description='Spawn y [m]'),
         DeclareLaunchArgument('yaw', default_value='0.0', description='Spawn yaw [rad]'),
+        DeclareLaunchArgument('mapping_lidar', default_value='false',
+                      description='Use a simulated 360-degree lidar for mapping'),
 
         OpaqueFunction(function=launch_gazebo, args=[share, gui_config]),
 

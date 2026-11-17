@@ -3,7 +3,7 @@
 <package format="3">
   <name>mcl_localization</name>
   <version>0.1.0</version>
-  <description>Mapa estatico da sala OBR e pose verdadeira do Gazebo para visualizacao no RViz.</description>
+  <description>Preparacao de mapa para localizacao Monte Carlo do HeRo.</description>
   <maintainer email="user@todo.todo">OBR</maintainer>
   <license>CC-BY-NC-SA-4.0</license>
 
@@ -12,8 +12,27 @@
   <depend>rclpy</depend>
   <depend>nav_msgs</depend>
   <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>action_msgs</depend>
+  <depend>nav2_msgs</depend>
   <depend>tf2_ros</depend>
   <depend>visualization_msgs</depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>slam_toolbox</exec_depend>
+  <exec_depend>nav2_map_server</exec_depend>
+  <exec_depend>nav2_lifecycle_manager</exec_depend>
+  <exec_depend>nav2_controller</exec_depend>
+  <exec_depend>nav2_planner</exec_depend>
+  <exec_depend>nav2_navfn_planner</exec_depend>
+  <exec_depend>nav2_bt_navigator</exec_depend>
+  <exec_depend>nav2_collision_monitor</exec_depend>
+  <exec_depend>dwb_core</exec_depend>
+  <exec_depend>dwb_critics</exec_depend>
+  <exec_depend>dwb_plugins</exec_depend>
+  <exec_depend>hero_sim</exec_depend>
+  <exec_depend>rviz2</exec_depend>
 
   <export>
     <build_type>ament_python</build_type>

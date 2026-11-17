@@ -10,7 +10,12 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/launch', ['launch/mcl_launch.py']),
+        ('share/' + package_name + '/launch', ['launch/mcl_launch.py', 'launch/localization.launch.py',
+                              'launch/rescue.launch.py']),
+        ('share/' + package_name + '/config', ['config/slam.yaml', 'config/navigation.yaml',
+                              'config/navigate.xml']),
+        ('share/' + package_name + '/maps', ['maps/obr_world.yaml', 'maps/obr_world.pgm']),
+        ('share/' + package_name + '/rviz', ['rviz/localization.rviz']),
     ],
     install_requires=['setuptools', 'numpy'],
     zip_safe=True,
@@ -22,6 +27,9 @@ setup(
     entry_points={
         'console_scripts': [
             'mcl_node = mcl_localization.mcl_node:main',
+            'victim_node = mcl_localization.victim_node:main',
+            'mission_node = mcl_localization.mission_node:main',
+            'world_map = mcl_localization.world_map:main',
         ],
     },
 )

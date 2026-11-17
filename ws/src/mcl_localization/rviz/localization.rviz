@@ -1,0 +1,121 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Cell Size: 0.1
+      Plane Cell Count: 20
+    - Class: rviz_default_plugins/Map
+      Name: Map
+      Enabled: true
+      Topic:
+        Value: /map
+        Durability Policy: Transient Local
+        Reliability Policy: Reliable
+        History Policy: Keep Last
+        Depth: 1
+    - Class: rviz_default_plugins/Map
+      Name: Global Costmap
+      Enabled: true
+      Alpha: 0.6
+      Color Scheme: costmap
+      Topic:
+        Value: /global_costmap/costmap
+        Durability Policy: Transient Local
+        Reliability Policy: Reliable
+        History Policy: Keep Last
+        Depth: 1
+    - Class: rviz_default_plugins/Map
+      Name: Local Costmap
+      Enabled: false
+      Alpha: 0.6
+      Color Scheme: costmap
+      Topic:
+        Value: /local_costmap/costmap
+        Durability Policy: Transient Local
+        Reliability Policy: Reliable
+        History Policy: Keep Last
+        Depth: 1
+    - Class: rviz_default_plugins/RobotModel
+      Name: Robot
+      Enabled: true
+      Description Source: Topic
+      Description Topic:
+        Value: /robot_description
+        Durability Policy: Transient Local
+        Reliability Policy: Reliable
+        History Policy: Keep Last
+        Depth: 1
+    - Class: rviz_default_plugins/LaserScan
+      Name: Laser
+      Enabled: true
+      Topic:
+        Value: /laser
+        Durability Policy: Volatile
+        Reliability Policy: Best Effort
+        History Policy: Keep Last
+        Depth: 5
+      Size (m): 0.008
+      Style: Spheres
+    - Class: rviz_default_plugins/PoseArray
+      Name: Particles
+      Enabled: true
+      Topic:
+        Value: /mcl/particles
+      Shape: Arrow (Flat)
+      Arrow Length: 0.04
+      Color: 255; 80; 0
+    - Class: rviz_default_plugins/PoseWithCovariance
+      Name: MCL
+      Enabled: true
+      Topic:
+        Value: /mcl/pose
+      Shape: Arrow
+      Shaft Length: 0.05
+      Shaft Radius: 0.004
+      Head Length: 0.02
+      Head Radius: 0.008
+    - Class: rviz_default_plugins/Pose
+      Name: Ground Truth
+      Enabled: true
+      Topic:
+        Value: /ground_truth/rviz
+      Shape: Arrow
+      Shaft Length: 0.08
+      Head Length: 0.03
+      Shaft Radius: 0.008
+      Head Radius: 0.015
+      Color: 40; 220; 80
+    - Class: rviz_default_plugins/MarkerArray
+      Name: Possible Victims
+      Enabled: true
+      Topic:
+        Value: /victims/markers
+    - Class: rviz_default_plugins/Path
+      Name: Planned Path
+      Enabled: true
+      Topic:
+        Value: /plan
+      Color: 0; 180; 255
+      Line Width: 0.005
+  Enabled: true
+  Global Options:
+    Fixed Frame: map
+    Background Color: 48; 48; 48
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/Interact
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/SetInitialPose
+    - Class: rviz_default_plugins/SetGoal
+  Views:
+    Current:
+      Class: rviz_default_plugins/TopDownOrtho
+      Target Frame: map
+      Scale: 500
+    Saved: ~

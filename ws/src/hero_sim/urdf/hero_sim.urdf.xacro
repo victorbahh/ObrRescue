@@ -5,6 +5,7 @@
   sensors ported from hero_description/urdf/{laser,imu}.gazebo.xacro (ROS 1).
 -->
 <robot name="hero" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="mapping_lidar" default="false"/>
   <xacro:property name="PI" value="3.14159265359"/>
   <xacro:property name="meshes" value="file://$(find hero_jazzy)/meshes"/>
 
@@ -95,7 +96,6 @@
   </gazebo>
 
   <!-- ===================== Sensors ===================== -->
-  <!-- 16-ray 360 deg proximity "laser" (HeRo IR ring), 3.8-20 cm -->
   <gazebo reference="laser_link">
     <sensor name="hero_laser" type="gpu_lidar">
       <topic>/laser</topic>
@@ -106,10 +106,18 @@
       <lidar>
         <scan>
           <horizontal>
-            <samples>71</samples>
-            <resolution>1</resolution>
-            <min_angle>-0.610865</min_angle>
-            <max_angle>0.610865</max_angle>
+            <xacro:if value="$(arg mapping_lidar)">
+              <samples>360</samples>
+              <resolution>1</resolution>
+              <min_angle>-${PI}</min_angle>
+              <max_angle>${PI - PI / 180}</max_angle>
+            </xacro:if>
+            <xacro:unless value="$(arg mapping_lidar)">
+              <samples>71</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.610865</min_angle>
+              <max_angle>0.610865</max_angle>
+            </xacro:unless>
           </horizontal>
           <vertical>
             <samples>1</samples>
@@ -158,6 +166,12 @@
     </plugin>
     <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
       <topic>/joint_states</topic>
+    </plugin>
+    <plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
+      <topic>/ground_truth/pose</topic>
+      <publish_link_pose>false</publish_link_pose>
+      <publish_model_pose>true</publish_model_pose>
+      <update_frequency>30</update_frequency>
     </plugin>
     <!-- IMU system loaded with the robot so any world works (worlds must not load it too,
          or /imu is published twice). Worlds still need gz-sim-sensors-system for the laser. -->
